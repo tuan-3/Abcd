@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thiệp Cưới 🎊</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9963a;
+    --gold2: #e8c06a;
+    --cream: #fdf8ef;
+    --ivory: #f5edd8;
+    --dark: #2a1a0e;
+    --brown: #7a5a2a;
+    --pink: #e8547a;
+    --rose: #f7c5d0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* ============ PAGE QR — THIỆP CƯỚI ============ */
+  #page-qr {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px 40px;
+    position: relative;
+    background: linear-gradient(160deg, #fdf3e3 0%, #faebd0 50%, #f5e0c0 100%);
+    overflow: hidden;
+  }
+
+  /* hoa vàng góc */
+  .corner { position: absolute; font-size: 56px; opacity: 0.13; pointer-events: none; }
+  .corner.tl { top: 10px; left: 10px; }
+  .corner.tr { top: 10px; right: 10px; transform: scaleX(-1); }
+  .corner.bl { bottom: 10px; left: 10px; transform: scaleY(-1); }
+  .corner.br { bottom: 10px; right: 10px; transform: scale(-1,-1); }
+
+  /* confetti rơi */
+  .conf { position: absolute; pointer-events: none; animation: confFall linear infinite; font-size: 16px; opacity: 0; }
+  @keyframes confFall {
+    0%   { transform: translateY(-40px) rotate(0deg);   opacity: 0; }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.4; }
+    100% { transform: translateY(105vh) rotate(540deg); opacity: 0; }
+  }
+
+  /* khung thiệp cưới */
+  .wedding-card {
+    background: white;
+    border-radius: 4px;
+    max-width: 360px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 12px 50px rgba(180,120,30,0.2), 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+    border: 1px solid rgba(201,150,58,0.3);
+  }
+
+  /* dải vàng trên */
+  .wc-top-bar {
+    height: 8px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2), var(--gold));
+  }
+
+  /* header thiệp cưới */
+  .wc-header {
+    padding: 28px 24px 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(201,150,58,0.2);
+    position: relative;
+    background: linear-gradient(180deg, #fffdf5, white);
+  }
+  .wc-ornament {
+    font-size: 22px;
+    letter-spacing: 8px;
+    color: var(--gold);
+    margin-bottom: 10px;
+    opacity: 0.7;
+  }
+  .wc-pre {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--brown);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+  .wc-title {
+    font-family: 'Dancing Script', cursive;
+    font-size: 32px;
+    color: var(--gold);
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .wc-title2 {
+    font-family: 'Dancing Script', cursive;
+    font-size: 14px;
+    color: var(--brown);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    opacity: 0.7;
+  }
+  /* đường kẻ vàng */
+  .wc-divider {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin: 0 auto;
+  }
+  .wc-divider::before, .wc-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.5;
+  }
+  .wc-divider span { font-size: 14px; color: var(--gold); }
+
+  /* body thiệp */
+  .wc-body { padding: 20px 24px 16px; text-align: center; }
+
+  .wc-invite {
+    font-size: 12px;
+    color: var(--brown);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    opacity: 0.8;
+  }
+  .wc-names {
+    font-family: 'Dancing Script', cursive;
+    font-size: 36px;
+    color: var(--dark);
+    line-height: 1.1;
+    margin-bottom: 2px;
+  }
+  .wc-amp {
+    font-family: 'Dancing Script', cursive;
+    font-size: 28px;
+    color: var(--gold);
+    display: block;
+    margin: 2px 0;
+  }
+  .wc-event {
+    font-size: 11px;
+    color: #aaa;
+    letter-spacing: 2px;
+    margin-top: 10px;
+    margin-bottom: 14px;
+  }
+
+  /* khung QR */
+  .wc-qr-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 4px 0 12px;
+    position: relative;
+  }
+  .wc-qr-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+  .qr-frame {
+    padding: 10px;
+    border: 1.5px solid rgba(201,150,58,0.4);
+    border-radius: 4px;
+    background: white;
+    position: relative;
+    display: inline-block;
+  }
+  /* góc vàng trang trí QR */
+  .qr-frame::before, .qr-frame::after,
+  .qr-frame .qc::before, .qr-frame .qc::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    border-color: var(--gold);
+    border-style: solid;
+    opacity: 0.7;
+  }
+  .qr-frame::before  { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .qr-frame::after   { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+  .qr-frame .qc::before { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+  .qr-frame .qc::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+  #qrcode img, #qrcode canvas { display: block; border-radius: 2px; }
+  .qr-center-icon {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 32px; height: 32px;
+    background: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    border: 1.5px solid rgba(201,150,58,0.4);
+    pointer-events: none;
+  }
+
+  /* info ngân hàng */
+  .bank-info {
+    background: linear-gradient(135deg, #fffdf5, #faf5e8);
+    border: 1px solid rgba(201,150,58,0.2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 8px 0 12px;
+    text-align: left;
+  }
+  .bank-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; margin-bottom: 5px;
+  }
+  .bank-row:last-child { margin: 0; }
+  .bank-key { color: #aaa; font-size: 10px; letter-spacing: 0.5px; }
+  .bank-val { font-weight: 600; color: var(--dark); font-size: 13px; }
+  .bank-val.highlight { color: var(--gold); }
+
+  .wc-hint {
+    font-size: 11px; color: #bbb; line-height: 1.7; margin-bottom: 14px;
+  }
+  .wc-hint b { color: var(--gold); }
+
+  /* nút mở thiệp */
+  .reveal-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--gold), #a87828);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 16px rgba(180,120,30,0.3);
+    transition: opacity .2s, transform .1s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .reveal-btn:active { opacity: .85; transform: scale(0.98); }
+
+  /* dải vàng dưới */
+  .wc-bottom-bar {
+    height: 8px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2), var(--gold));
+    margin-top: 20px;
+  }
+
+
+  /* ============ PAGE PHONG BÌ ============ */
+  #page-letter {
+    display: none;
+    min-height: 100vh;
+    position: relative;
+    background: linear-gradient(160deg, #0d1a10 0%, #1a2d14 50%, #0d1a10 100%);
+    overflow: hidden;
+  }
+  .star { position: absolute; background: white; border-radius: 50%; animation: twinkle ease-in-out infinite; pointer-events: none; }
+  @keyframes twinkle { 0%,100%{opacity:.2;transform:scale(1)} 50%{opacity:.9;transform:scale(1.4)} }
+
+  .envelope-scene {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 5;
+  }
+  /* badge "THIỆP BÍ ẨN" */
+  .secret-badge {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 6px 18px;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .envelope-wrap { position: relative; cursor: pointer; }
+  .envelope { width: 280px; height: 190px; position: relative; }
+  .env-body {
+    width: 280px; height: 170px;
+    background: linear-gradient(145deg, #fdf8ef, #f0e8d0);
+    border-radius: 4px 4px 16px 16px;
+    position: absolute; bottom: 0;
+    box-shadow: 0 20px 70px rgba(0,0,0,0.6);
+    overflow: hidden;
+  }
+  .env-flap {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 110px;
+    transform-origin: top center;
+    transition: transform 0.8s cubic-bezier(.4,0,.2,1);
+    z-index: 10;
+  }
+  .env-flap svg { width: 280px; height: 110px; }
+  .envelope-wrap.opened .env-flap { transform: rotateX(180deg); }
+
+  .letter-paper {
+    position: absolute; left: 18px; right: 18px; bottom: 14px;
+    background: white; border-radius: 4px;
+    transition: transform 0.9s cubic-bezier(.4,0,.2,1) 0.2s;
+    transform: translateY(0px);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    overflow: hidden; z-index: 5;
+  }
+  .envelope-wrap.opened .letter-paper { transform: translateY(-210px); }
+  .letter-top-strip {
+    height: 5px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2), var(--gold));
+  }
+  .letter-preview { padding: 8px 10px; text-align: center; }
+  .letter-preview p { font-family: 'Dancing Script', cursive; font-size: 12px; color: #a08050; }
+
+  .seal {
+    position: absolute; bottom: -14px; left: 50%;
+    transform: translateX(-50%);
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--gold), #a87828);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 3px 12px rgba(180,120,30,0.5);
+    z-index: 20;
+    transition: transform 0.3s;
+  }
+  .envelope-wrap.opened .seal { transform: translateX(-50%) scale(0); }
+
+  .open-hint { margin-top: 30px; text-align: center; }
+  .open-hint p { color: rgba(255,255,255,0.4); font-size: 13px; animation: pulse 2s ease-in-out infinite; letter-spacing: 1px; }
+  @keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:.9} }
+
+
+  /* ============ PAGE NỘI DUNG ============ */
+  #page-content {
+    display: none;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #fdf8ef 0%, #faebd0 100%);
+    padding: 32px 16px 60px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* hoa vàng rơi */
+  .gold-petal { position: fixed; top: -30px; pointer-events: none; animation: goldFall linear infinite; opacity: 0; font-size: 18px; }
+  @keyframes goldFall {
+    0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 0; }
+    10%  { opacity: 0.8; }
+    90%  { opacity: 0.5; }
+    100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0; }
+  }
+
+  .content-card {
+    max-width: 400px;
+    margin: 0 auto;
+    animation: riseUp 0.7s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes riseUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+  /* header bài thơ */
+  .poem-header {
+    background: linear-gradient(135deg, #2a1a0e, #4a2e14);
+    border-radius: 4px 4px 0 0;
+    padding: 32px 24px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .poem-header::before {
+    content: '⚡'; position: absolute; top: -20px; left: -20px;
+    font-size: 100px; opacity: 0.06;
+  }
+  .poem-header::after {
+    content: '⚡'; position: absolute; bottom: -20px; right: -20px;
+    font-size: 100px; opacity: 0.06; transform: rotate(180deg);
+  }
+  .ph-top { font-size: 10px; letter-spacing: 4px; color: var(--gold2); opacity: 0.7; margin-bottom: 12px; }
+  .ph-from {
+    font-family: 'Dancing Script', cursive;
+    font-size: 15px; color: rgba(255,255,255,0.6); margin-bottom: 8px;
+  }
+  .ph-to {
+    font-family: 'Dancing Script', cursive;
+    font-size: 38px; color: var(--gold2); line-height: 1.1; margin-bottom: 8px;
+  }
+  .ph-date { font-size: 12px; color: rgba(255,255,255,0.4); letter-spacing: 3px; }
+  .ph-divider {
+    margin: 16px auto 0; width: 80px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  /* body nội dung */
+  .poem-body {
+    background: white;
+    padding: 28px 24px 20px;
+    border-left: 1px solid rgba(201,150,58,0.15);
+    border-right: 1px solid rgba(201,150,58,0.15);
+  }
+
+  /* intro nhóm 3 cột điện */
+  .group-intro {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed rgba(201,150,58,0.25);
+  }
+  .group-emoji { font-size: 40px; margin-bottom: 8px; display: flex; justify-content: center; gap: 8px; }
+  .group-name {
+    font-family: 'Dancing Script', cursive;
+    font-size: 22px; color: var(--dark); margin-bottom: 4px;
+  }
+  .group-tag { font-size: 12px; color: #bbb; letter-spacing: 1px; }
+
+  /* các lời chúc */
+  .wish-item {
+    margin-bottom: 16px;
+    padding: 16px 18px;
+    border-radius: 8px;
+    border-left: 3px solid var(--gold);
+    background: linear-gradient(135deg, #fffdf5, #faf8f0);
+    animation: fadeSlide 0.5s ease both;
+  }
+  .wish-item:nth-child(1) { animation-delay: 0.05s; }
+  .wish-item:nth-child(2) { animation-delay: 0.15s; border-left-color: #e8547a; }
+  .wish-item:nth-child(3) { animation-delay: 0.25s; border-left-color: #4a8a4a; }
+  .wish-item:nth-child(4) { animation-delay: 0.35s; border-left-color: #4a4a8a; }
+  .wish-item:nth-child(5) { animation-delay: 0.45s; }
+  @keyframes fadeSlide { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
+
+  .wish-icon { font-size: 20px; margin-bottom: 6px; }
+  .wish-main {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 15px; color: var(--dark); line-height: 1.75;
+    margin-bottom: 5px;
+  }
+  .wish-note { font-size: 12px; color: #aaa; line-height: 1.6; }
+
+  /* 3 cột điện section */
+  .pole-section {
+    background: linear-gradient(135deg, #3a0820, #6a1040, #3a0820);
+    border-radius: 10px;
+    padding: 20px 18px;
+    margin: 20px 0 4px;
+    text-align: center;
+    border: 1px solid rgba(255,150,180,0.2);
+    box-shadow: 0 4px 20px rgba(220,80,120,0.15);
+  }
+  .pole-title {
+    font-size: 10px; letter-spacing: 4px; color: rgba(255,180,200,0.6);
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+  .poles-row {
+    display: flex; justify-content: center; align-items: flex-end; gap: 24px;
+    margin-bottom: 14px;
+  }
+  .pole-item { text-align: center; }
+  .pole-icon { font-size: 32px; display: block; margin-bottom: 4px; }
+  .pole-name {
+    font-family: 'Dancing Script', cursive;
+    font-size: 16px; color: #ffb8cc; display: block; margin-bottom: 2px;
+  }
+  .pole-role { font-size: 10px; color: rgba(255,180,200,0.45); letter-spacing: 1px; }
+  .pole-caption {
+    font-size: 12px; color: rgba(255,180,200,0.55);
+    font-style: italic; line-height: 1.6; margin-top: 10px;
+  }
+  .pole-caption b { color: #ffb8cc; }
+
+  /* closing */
+  .closing-block {
+    text-align: center; padding: 20px 0 8px;
+    border-top: 1px dashed rgba(201,150,58,0.2);
+    margin-top: 8px;
+  }
+  .closing-quote {
+    font-family: 'Playfair Display', serif;
+    font-style: italic; font-size: 13px;
+    color: var(--brown); line-height: 1.9; margin-bottom: 12px;
+  }
+  .closing-sigs { font-size: 24px; letter-spacing: 4px; }
+
+  .poem-footer {
+    background: linear-gradient(135deg, #2a1a0e, #4a2e14);
+    padding: 18px 24px;
+    text-align: center;
+    border-radius: 0 0 4px 4px;
+    border-top: 2px solid var(--gold);
+  }
+  .back-btn {
+    background: none;
+    border: 1px solid rgba(201,150,58,0.4);
+    color: var(--gold2); padding: 10px 24px;
+    border-radius: 4px; font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    letter-spacing: 1px; transition: all .2s;
+  }
+  .back-btn:hover { background: rgba(201,150,58,0.15); }
+</style>
+</head>
+<body>
+
+<!-- ====== PAGE 1: THIỆP CƯỚI + QR ====== -->
+<div id="page-qr">
+  <div class="corner tl">🌸</div>
+  <div class="corner tr">🌸</div>
+  <div class="corner bl">🌸</div>
+  <div class="corner br">🌸</div>
+  <div id="conf-container"></div>
+
+  <div class="wedding-card">
+    <div class="wc-top-bar"></div>
+
+    <div class="wc-header">
+      <div class="wc-ornament">✦ ❧ ✦</div>
+      <div class="wc-pre">Trân trọng kính mời</div>
+      <div class="wc-title">Thiệp Mừng</div>
+      <div class="wc-title2">Ngày Phụ Nữ Việt Nam</div>
+      <div class="wc-divider"><span>❧</span></div>
+    </div>
+
+    <div class="wc-body">
+      <div class="wc-invite" style="margin-bottom:10px">Kính gửi đến</div>
+      <div class="wc-names">
+        <span style="display:block;font-size:42px;color:var(--gold)">Mai Linh</span>
+      </div>
+      <div class="wc-event">✦ &nbsp; 20 / 10 / 2026 &nbsp; ✦</div>
+
+      <div class="wc-qr-wrap">
+        <div class="wc-qr-label">✦ Quét mã ngân hàng ✦</div>
+        <div class="qr-frame">
+          <div class="qc"></div>
+          <div id="qrcode"></div>
+          <div class="qr-center-icon">💛</div>
+        </div>
+      </div>
+
+      <div class="bank-info">
+        <div class="bank-row">
+          <span class="bank-key">Ngân hàng</span>
+          <span class="bank-val highlight">Vietcombank</span>
+        </div>
+        <div class="bank-row">
+          <span class="bank-key">Số tài khoản</span>
+          <span class="bank-val">1234 5678 9012</span>
+        </div>
+        <div class="bank-row">
+          <span class="bank-key">Chủ tài khoản</span>
+          <span class="bank-val">NGUYEN MAI LINH</span>
+        </div>
+        <div class="bank-row">
+          <span class="bank-key">Nội dung CK</span>
+          <span class="bank-val highlight">Qua tang 20-10 Mai Linh</span>
+        </div>
+      </div>
+
+      <div class="wc-hint">
+        Sau khi chuyển khoản, nhấn nút bên dưới<br>
+        để mở <b>thiệp bí ẩn</b> từ nhóm bạn thân 💌
+      </div>
+
+      <button class="reveal-btn" onclick="goLetter()">
+        💌 &nbsp; Mở Thiệp Bí Ẩn
+      </button>
+    </div>
+
+    <div class="wc-bottom-bar"></div>
+  </div>
+</div>
+
+<!-- ====== PAGE 2: PHONG BÌ ====== -->
+<div id="page-letter">
+  <div id="stars-container"></div>
+
+  <div class="envelope-scene">
+    <div class="secret-badge">✦ Thiệp Bí Ẩn ✦</div>
+
+    <div class="envelope-wrap" id="envelope" onclick="openEnvelope()">
+      <div class="envelope">
+        <div class="env-flap">
+          <svg viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="0,0 280,0 140,90" fill="#f0e8d0"/>
+            <polygon points="0,0 140,90 0,110" fill="#e8dcc0" opacity="0.6"/>
+            <polygon points="280,0 140,90 280,110" fill="#e8dcc0" opacity="0.6"/>
+            <!-- chữ trên nắp phong bì -->
+            <text x="140" y="38" font-family="Dancing Script, cursive" font-size="18" fill="rgba(180,120,30,0.5)" text-anchor="middle">Mai Linh</text>
+          </svg>
+        </div>
+        <div class="env-body">
+          <div style="position:absolute;bottom:0;left:0;right:0;height:110px;overflow:hidden">
+            <svg viewBox="0 0 280 110" style="width:280px;height:110px">
+              <polygon points="0,110 140,20 280,110" fill="rgba(180,120,30,0.08)"/>
+            </svg>
+          </div>
+        </div>
+        <div class="letter-paper">
+          <div class="letter-top-strip"></div>
+          <div class="letter-preview">
+            <p>✨ Gửi bạn thân Mai Linh yêu quý... ✨</p>
+          </div>
+        </div>
+        <div class="seal">💛</div>
+      </div>
+    </div>
+
+    <div class="open-hint">
+      <p>✦ &nbsp; Chạm vào phong bì để mở &nbsp; ✦</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PAGE 3: NỘI DUNG THƯ ====== -->
+<div id="page-content">
+  <div id="gold-petals"></div>
+
+  <div class="content-card" style="position:relative;z-index:2">
+
+    <!-- Header -->
+    <div class="poem-header">
+      <div class="ph-top">✦ &nbsp; Nhân ngày 20 / 10 &nbsp; ✦</div>
+      <div class="ph-from">Nhóm "3 Cây Cột Điện" gửi đến</div>
+      <div class="ph-to">Mai Linh 🌸</div>
+      <div class="ph-date">20 · 10 · 2026</div>
+      <div class="ph-divider"></div>
+    </div>
+
+    <!-- Body -->
+    <div class="poem-body">
+
+      <!-- Intro nhóm -->
+      <div class="group-intro">
+        <div class="group-emoji">⚡ ⚡ ⚡</div>
+        <div class="group-name">"Nhóm 3 Cây Cột Điện"</div>
+        <div class="group-tag">Ba đứa thẳng đứng · Luôn sáng điện · Không bao giờ ngã 😂</div>
+      </div>
+
+      <!-- Lời chúc -->
+      <div class="wish-item">
+        <div class="wish-icon">👑</div>
+        <div class="wish-main">Chúc Mai Linh luôn rạng rỡ, xinh đẹp và tỏa sáng như ngọn đèn điện — dù bão hay mưa vẫn không bao giờ tắt!</div>
+        <div class="wish-note">Vì bạn là nguồn sáng của cả nhóm này 💛</div>
+      </div>
+
+      <div class="wish-item">
+        <div class="wish-icon">🍀</div>
+        <div class="wish-main">Chúc bạn năm nay gặp nhiều may mắn, tiền vào như điện chạy — liên tục, ổn định và không bao giờ cúp!</div>
+        <div class="wish-note">Còn nếu cúp điện thì... nhóm sẽ chạy sang ngay thôi 😁</div>
+      </div>
+
+      <div class="wish-item">
+        <div class="wish-icon">💪</div>
+        <div class="wish-main">Chúc bạn mạnh khỏe, tự tin vượt qua mọi khó khăn như cây cột điện đứng vững giữa bão — không lung lay, không khuất phục!</div>
+        <div class="wish-note">Dù có gì, nhóm cột điện luôn bên cạnh 🤝</div>
+      </div>
+
+      <div class="wish-item">
+        <div class="wish-icon">😂</div>
+        <div class="wish-main">Và quan trọng nhất — chúc bạn luôn vui, cười nhiều hơn khóc, ăn ngon hơn lo, ngủ sâu hơn thức!</div>
+        <div class="wish-note">Cột điện mà không vui thì... thành cột buồm mất 🤣</div>
+      </div>
+
+      <div class="wish-item">
+        <div class="wish-icon">🌙</div>
+        <div class="wish-main">Chúc bạn bình yên mỗi ngày. Biết mình đang sống thật tốt, và biết rằng luôn có 3 cây cột điện thẳng đứng bên cạnh.</div>
+        <div class="wish-note">Tự hào được là "cột điện" cùng nhóm với bạn 🥹</div>
+      </div>
+
+      <!-- 3 cột điện ký tên -->
+      <div class="pole-section">
+        <div class="pole-title">✦ &nbsp; Ký tên từ nhóm &nbsp; ✦</div>
+        <div class="poles-row">
+          <div class="pole-item">
+            <span class="pole-icon">⚡</span>
+            <span class="pole-name">Nam</span>
+            <span class="pole-role">Cột Điện #1</span>
+          </div>
+          <div class="pole-item" style="transform:scale(1.12)">
+            <span class="pole-icon">💖</span>
+            <span class="pole-name" style="font-size:20px;color:#ff80aa">Mai Linh</span>
+            <span class="pole-role" style="color:#ffb8cc">Cột Điện Ngôi Sao 🌟</span>
+          </div>
+          <div class="pole-item">
+            <span class="pole-icon">⚡</span>
+            <span class="pole-name">Dũng</span>
+            <span class="pole-role">Cột Điện #2</span>
+          </div>
+        </div>
+        <div style="margin-top:10px;margin-bottom:4px">
+          <div class="pole-item" style="display:inline-block">
+            <span class="pole-icon">⚡</span>
+            <span class="pole-name">Tuân</span>
+            <span class="pole-role">Cột Điện #3</span>
+          </div>
+        </div>
+        <div class="pole-caption">
+          <b>"Ba cây cột điện — thẳng đứng, bền vững,<br>cùng nhau chiếu sáng mọi con đường."</b>
+        </div>
+      </div>
+
+      <!-- Closing -->
+      <div class="closing-block">
+        <div class="closing-quote" style="color:#c0406a;">
+          "Tình bạn không cần hoàn hảo —<br>
+          chỉ cần thẳng đứng như cột điện<br>
+          và không bao giờ cúp điện với nhau 😂💕"
+        </div>
+        <div class="closing-sigs">⚡ 💖 ⚡</div>
+      </div>
+    </div><!-- end poem-body -->
+
+    <div class="poem-footer">
+      <button class="back-btn" onclick="goBack()">← Quay lại QR</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- QR ----
+new QRCode(document.getElementById("qrcode"), {
+  text: window.location.href,
+  width: 200, height: 200,
+  colorDark: "#2a1a0e",
+  colorLight: "#ffffff",
+  correctLevel: QRCode.CorrectLevel.H
+});
+
+// ---- CONFETTI ----
+const confEmoji = ['🎊','🎉','✨','🌸','💛','🎀','⭐'];
+const confC = document.getElementById('conf-container');
+for (let i = 0; i < 18; i++) {
+  const p = document.createElement('div');
+  p.className = 'conf';
+  p.textContent = confEmoji[i % confEmoji.length];
+  p.style.cssText = `left:${Math.random()*100}vw; animation-duration:${7+Math.random()*9}s; animation-delay:${Math.random()*9}s; font-size:${14+Math.random()*14}px;`;
+  confC.appendChild(p);
+}
+
+// ---- STARS ----
+const sc = document.getElementById('stars-container');
+for (let i = 0; i < 80; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const sz = Math.random()*3+1;
+  s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}vh;left:${Math.random()*100}vw;animation-duration:${1.5+Math.random()*3}s;animation-delay:${Math.random()*4}s;`;
+  sc.appendChild(s);
+}
+
+// ---- GOLD PETALS ----
+function makeGoldPetals() {
+  const c = document.getElementById('gold-petals');
+  const em = ['🌸','✨','💛','⭐','🌟','🎀'];
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'gold-petal';
+    p.textContent = em[i % em.length];
+    p.style.cssText = `left:${Math.random()*100}vw;animation-duration:${6+Math.random()*8}s;animation-delay:${Math.random()*8}s;font-size:${14+Math.random()*14}px;`;
+    c.appendChild(p);
+  }
+}
+makeGoldPetals();
+
+// ---- NAV ----
+function goLetter() {
+  document.getElementById('page-qr').style.display = 'none';
+  document.getElementById('page-letter').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+let envelopeOpened = false;
+function openEnvelope() {
+  if (envelopeOpened) return;
+  envelopeOpened = true;
+  document.getElementById('envelope').classList.add('opened');
+  document.querySelector('.open-hint p').textContent = '✦  Đang mở...  ✦';
+  setTimeout(() => {
+    document.getElementById('page-letter').style.display = 'none';
+    document.getElementById('page-content').style.display = 'block';
+    window.scrollTo(0,0);
+  }, 1400);
+}
+
+function goBack() {
+  document.getElementById('page-content').style.display = 'none';
+  document.getElementById('page-qr').style.display = 'flex';
+  envelopeOpened = false;
+  document.getElementById('envelope').classList.remove('opened');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
